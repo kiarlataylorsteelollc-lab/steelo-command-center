@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STEELO EMPIRE — Master Pipeline</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#080E14; --bg2:#0D1520; --bg3:#111C2A; --card:#131E2E;
+  --gold:#F59E0B; --gold2:#D97706;
+  --blue:#2563EB; --green:#059669; --purple:#7C3AED;
+  --pink:#BE185D; --orange:#C2410C; --red:#DC2626;
+  --teal:#0891B2; --lime:#65A30D;
+  --text:#E2E8F0; --muted:#64748B; --dim:#94A3B8;
+  --border:rgba(255,255,255,0.07);
+  --font-head:'Bebas Neue',sans-serif;
+  --font:'DM Sans',sans-serif;
+  --mono:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;overflow-x:hidden}
+
+/* ── TOP BAR ── */
+.topbar{background:linear-gradient(90deg,#0a1628,#080E14);border-bottom:2px solid var(--gold);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+.logo{font-family:var(--font-head);font-size:22px;letter-spacing:3px;color:var(--gold)}
+.logo-sub{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+.topbar-center{display:flex;gap:8px;align-items:center}
+.brand-pill{font-size:9px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:1px;cursor:pointer;transition:all .15s;border:1px solid transparent}
+.brand-pill.steelo{background:rgba(37,99,235,.2);color:#93C5FD;border-color:rgba(37,99,235,.4)}
+.brand-pill.clearpath{background:rgba(5,150,105,.2);color:#6EE7B7;border-color:rgba(5,150,105,.4)}
+.brand-pill.grf{background:rgba(124,58,237,.2);color:#C4B5FD;border-color:rgba(124,58,237,.4)}
+.brand-pill.skate{background:rgba(190,24,93,.2);color:#F9A8D4;border-color:rgba(190,24,93,.4)}
+.brand-pill.pullup{background:rgba(194,65,12,.2);color:#FED7AA;border-color:rgba(194,65,12,.4)}
+.timer-box{background:var(--red);border-radius:8px;padding:6px 14px;text-align:center;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.5)}50%{box-shadow:0 0 0 8px rgba(220,38,38,0)}}
+.timer-num{font-family:var(--font-head);font-size:24px;letter-spacing:2px;line-height:1}
+.timer-lbl{font-size:8px;letter-spacing:2px;text-transform:uppercase}
+
+/* ── LAYOUT ── */
+.main{display:flex;height:calc(100vh - 58px);overflow:hidden}
+.sidebar{width:190px;background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0}
+.sidebar-sec{padding:10px 12px 4px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:700;margin-top:4px}
+.tab{display:flex;align-items:center;gap:8px;width:100%;padding:9px 13px;background:none;border:none;color:var(--muted);font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;text-align:left;border-left:3px solid transparent;transition:all .15s}
+.tab:hover{background:rgba(255,255,255,.03);color:var(--text)}
+.tab.active{background:rgba(245,158,11,.08);color:var(--gold);border-left-color:var(--gold)}
+.tab-icon{font-size:14px;flex-shrink:0}
+.badge{margin-left:auto;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;font-family:var(--mono)}
+.badge.red{background:var(--red);color:#fff}
+.badge.gold{background:var(--gold);color:#000}
+.badge.green{background:var(--green);color:#fff}
+
+.content{flex:1;overflow-y:auto;padding:20px 24px;background:var(--bg)}
+.panel{display:none}
+.panel.active{display:block}
+
+/* ── COMPONENTS ── */
+.page-head{margin-bottom:20px}
+.page-title{font-family:var(--font-head);font-size:32px;letter-spacing:3px;line-height:1}
+.page-sub{font-size:12px;color:var(--muted);margin-top:3px}
+
+.section-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:12px;margin-top:20px;display:flex;align-items:center;gap:10px}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(245,158,11,.3),transparent)}
+
+.grid{display:grid;gap:12px;margin-bottom:16px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:1fr 1fr 1fr}
+.g4{grid-template-columns:1fr 1fr 1fr 1fr}
+.gfull{grid-template-columns:1fr}
+
+.card{background:var(--card);border-radius:10px;padding:14px 16px;border:1px solid var(--border);border-left:4px solid var(--muted);transition:transform .15s,box-shadow .15s;position:relative}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.card.fire{border-left-color:var(--red)}
+.card.go{border-left-color:var(--gold)}
+.card.ok{border-left-color:var(--green)}
+.card.pending{border-left-color:var(--muted)}
+.card.info{border-left-color:var(--blue)}
+
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
+.card-title{font-size:13px;font-weight:700;color:var(--text);line-height:1.3}
+.card-body{font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:10px}
+.card-foot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
+
+.status{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px;font-family:var(--mono);flex-shrink:0}
+.status.fire{background:rgba(220,38,38,.3);color:#FCA5A5;border:1px solid rgba(220,38,38,.5)}
+.status.go{background:rgba(245,158,11,.3);color:#FDE68A;border:1px solid rgba(245,158,11,.5)}
+.status.ok{background:rgba(5,150,105,.3);color:#A7F3D0;border:1px solid rgba(5,150,105,.5)}
+.status.pending{background:rgba(100,116,139,.15);color:var(--muted);border:1px solid rgba(100,116,139,.3)}
+.status.info{background:rgba(37,99,235,.25);color:#BFDBFE;border:1px solid rgba(37,99,235,.4)}
+
+.chips{display:flex;gap:5px;flex-wrap:wrap}
+.chip{font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:.5px}
+.chip.rhonda{background:rgba(245,158,11,.2);color:#FCD34D;border:1px solid rgba(245,158,11,.4)}
+.chip.ai{background:rgba(5,150,105,.2);color:#6EE7B7;border:1px solid rgba(5,150,105,.4)}
+.chip.pepper{background:rgba(194,65,12,.2);color:#FED7AA;border:1px solid rgba(194,65,12,.4)}
+.chip.hailey{background:rgba(37,99,235,.2);color:#BFDBFE;border:1px solid rgba(37,99,235,.4)}
+.chip.phil{background:rgba(124,58,237,.2);color:#DDD6FE;border:1px solid rgba(124,58,237,.4)}
+.chip.donielle{background:rgba(190,24,93,.2);color:#FBCFE8;border:1px solid rgba(190,24,93,.4)}
+.chip.va{background:rgba(255,255,255,.08);color:var(--dim);border:1px solid rgba(255,255,255,.15)}
+.chip.openclaw{background:rgba(220,38,38,.2);color:#FCA5A5;border:1px solid rgba(220,38,38,.4)}
+.chip.ghl{background:rgba(8,145,178,.2);color:#67E8F9;border:1px solid rgba(8,145,178,.4)}
+
+.due{font-size:9px;color:var(--muted);font-family:var(--mono);font-weight:500}
+.due.hot{color:#FCA5A5}
+
+.alert{background:linear-gradient(90deg,rgba(220,38,38,.15),rgba(220,38,38,.05));border:1px solid rgba(220,38,38,.4);border-radius:8px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:12px;color:#FCA5A5;font-weight:600}
+.alert.gold{background:linear-gradient(90deg,rgba(245,158,11,.1),transparent);border-color:rgba(245,158,11,.4);color:#FDE68A}
+.alert.green{background:linear-gradient(90deg,rgba(5,150,105,.1),transparent);border-color:rgba(5,150,105,.4);color:#6EE7B7}
+.alert-icon{font-size:18px;flex-shrink:0}
+
+.note{background:rgba(245,158,11,.07);border:1px dashed rgba(245,158,11,.3);border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:11px;color:var(--muted);line-height:1.6}
+.note strong{color:var(--gold)}
+
+/* AGENT CARDS */
+.agent-card{background:var(--bg3);border-radius:10px;padding:14px 16px;border:1px solid var(--border);margin-bottom:12px}
+.agent-brand-tag{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.agent-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.agent-role{font-size:11px;color:var(--muted);margin-bottom:10px}
+.agent-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px}
+.agent-col-head{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:5px;font-weight:700}
+.agent-col-body{font-size:10px;color:var(--muted);line-height:1.6}
+.kpi-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.kpi{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:10px}
+.kpi span{color:var(--gold);font-weight:700;font-family:var(--mono);margin-right:4px}
+
+/* TIMELINE */
+.tl{position:relative;padding-left:24px;margin-bottom:20px}
+.tl::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--gold),rgba(245,158,11,.1))}
+.tl-item{position:relative;margin-bottom:14px}
+.tl-dot{position:absolute;left:-20px;top:3px;width:10px;height:10px;border-radius:50%;background:var(--gold);border:2px solid var(--bg);box-shadow:0 0 6px rgba(245,158,11,.5)}
+.tl-dot.red{background:var(--red);box-shadow:0 0 6px rgba(220,38,38,.5)}
+.tl-dot.green{background:var(--green);box-shadow:0 0 6px rgba(5,150,105,.5)}
+.tl-dot.gray{background:var(--muted);box-shadow:none}
+.tl-date{font-size:9px;color:var(--gold);font-family:var(--mono);font-weight:500;letter-spacing:1px;margin-bottom:1px}
+.tl-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
+.tl-desc{font-size:11px;color:var(--muted);line-height:1.5}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:16px}
+.tbl th{background:rgba(245,158,11,.12);color:var(--gold);font-size:9px;text-transform:uppercase;letter-spacing:1.5px;padding:8px 12px;text-align:left;font-weight:700;border-bottom:1px solid rgba(245,158,11,.3)}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top;line-height:1.5}
+.tbl tr:hover td{background:rgba(255,255,255,.02)}
+
+/* GATE BOX */
+.gate{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
+.gate-num{font-family:var(--font-head);font-size:48px;color:var(--gold);opacity:.3;line-height:1;float:right;margin-left:10px}
+.gate-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.gate-rule{font-size:11px;color:var(--gold);font-weight:600;margin-bottom:6px}
+.gate-body{font-size:11px;color:var(--muted);line-height:1.6}
+.gate-do{font-size:11px;color:#6EE7B7;font-weight:700;margin-top:8px}
+
+/* STACK GRID */
+.stack-item{background:var(--bg3);border-radius:8px;padding:12px 14px;border:1px solid var(--border)}
+.stack-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px}
+.stack-role{font-size:10px;color:var(--gold);margin-bottom:5px;font-weight:600}
+.stack-desc{font-size:10px;color:var(--muted);line-height:1.5}
+.stack-verdict{margin-top:7px;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;display:inline-block}
+
+/* METRIC GRID */
+.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+.metric{background:var(--card);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border)}
+.metric-num{font-family:var(--font-head);font-size:28px;letter-spacing:2px;color:var(--gold);line-height:1}
+.metric-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-top:3px}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:rgba(245,158,11,.25);border-radius:3px}
+
+@media(max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}.sidebar{width:150px}.metrics{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div>
+    <div class="logo">STEELO EMPIRE</div>
+    <div class="logo-sub">Master Pipeline · All 5 Brands · Claude + OpenClaw + GHL</div>
+  </div>
+  <div class="topbar-center">
+    <span class="brand-pill steelo">STEELO / EZ WIN</span>
+    <span class="brand-pill clearpath">CLEARPATH AI</span>
+    <span class="brand-pill grf">GRF</span>
+    <span class="brand-pill skate">SKATE HAUS</span>
+    <span class="brand-pill pullup">PULL UP™</span>
+  </div>
+  <div class="timer-box">
+    <div class="timer-num" id="countdown-num">2</div>
+    <div class="timer-lbl">Hours to Execute</div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-sec">🔥 RIGHT NOW</div>
+  <button class="tab active" onclick="showTab('now')"><span class="tab-icon">⚡</span>Execute NOW<span class="badge red">12</span></button>
+  <button class="tab" onclick="showTab('stopbuild')"><span class="tab-icon">🛑</span>Stop Building</button>
+  <button class="tab" onclick="showTab('stack')"><span class="tab-icon">🧠</span>Dream Stack</button>
+
+  <div class="sidebar-sec">AGENTS (10)</div>
+  <button class="tab" onclick="showTab('agents-steelo')"><span class="tab-icon">🏛</span>Steelo / EZ Win<span class="badge gold">2</span></button>
+  <button class="tab" onclick="showTab('agents-clearpath')"><span class="tab-icon">🛡</span>ClearPath AI<span class="badge gold">2</span></button>
+  <button class="tab" onclick="showTab('agents-grf')"><span class="tab-icon">🚀</span>GRF<span class="badge gold">2</span></button>
+  <button class="tab" onclick="showTab('agents-skate')"><span class="tab-icon">🛼</span>Skate Haus<span class="badge gold">2</span></button>
+  <button class="tab" onclick="showTab('agents-pullup')"><span class="tab-icon">🎙</span>Pull Up™<span class="badge gold">2</span></button>
+
+  <div class="sidebar-sec">BRANDS</div>
+  <button class="tab" onclick="showTab('grf-ops')"><span class="tab-icon">🚀</span>GRF Pipeline</button>
+  <button class="tab" onclick="showTab('merch')"><span class="tab-icon">👕</span>Merch</button>
+  <button class="tab" onclick="showTab('grants')"><span class="tab-icon">📋</span>Grants</button>
+  <button class="tab" onclick="showTab('sponsors')"><span class="tab-icon">🤝</span>Sponsors</button>
+
+  <div class="sidebar-sec">SYSTEMS</div>
+  <button class="tab" onclick="showTab('ghl-pipelines')"><span class="tab-icon">⚙️</span>GHL Pipelines</button>
+  <button class="tab" onclick="showTab('team')"><span class="tab-icon">👥</span>Team View</button>
+  <button class="tab" onclick="showTab('compliance')"><span class="tab-icon">🔒</span>Compliance</button>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+<!-- ══════════ EXECUTE NOW ══════════ -->
+<div class="panel active" id="panel-now">
+  <div class="page-head">
+    <div class="page-title" style="color:var(--red)">⚡ EXECUTE NOW</div>
+    <div class="page-sub">2-hour sprint. Every task below must move. No planning — execution only.</div>
+  </div>
+
+  <div class="alert">
+    <span class="alert-icon">🔥</span>
+    Claude is the brain. OpenClaw is the body. GHL is the memory. Rhonda closes. Everyone else executes. RIBBON CUTTING IN 8 DAYS.
+  </div>
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-num">8</div><div class="metric-lbl">Days to Ribbon</div></div>
+    <div class="metric"><div class="metric-num">10</div><div class="metric-lbl">Agents to Deploy</div></div>
+    <div class="metric"><div class="metric-num">$324</div><div class="metric-lbl">/mo Stack Cost</div></div>
+    <div class="metric"><div class="metric-num">$100K</div><div class="metric-lbl">Skate Haus Target</div></div>
+    <div class="metric"><div class="metric-num">$500K</div><div class="metric-lbl">Grant Pipeline</div></div>
+  </div>
+
+  <div class="section-label">THIS HOUR — DO THESE FIRST</div>
+  <div class="grid g2">
+    <div class="card fire">
+      <div class="card-head"><div class="card-title">OpenClaw: Install on Dedicated Machine</div><span class="status fire">NOW</span></div>
+      <div class="card-body">VA installs OpenClaw via DigitalOcean 1-Click Deploy (~$12/mo). NOT on Rhonda's computer. NOT on Pepper's laptop. Clean sandboxed environment. Connect Claude API key + GHL webhooks. Run test command via WhatsApp/Telegram. Report back in 30 minutes.</div>
+      <div class="card-foot"><div class="chips"><span class="chip va">VA</span><span class="chip openclaw">OpenClaw</span></div><span class="due hot">NOW</span></div>
+    </div>
+    <div class="card fire">
+      <div class="card-head"><div class="card-title">GHL: Build GRF Pipelines (4 pipelines)</div><span class="status fire">NOW</span></div>
+      <div class="card-body">VA 1 builds in GHL NOW: (1) Family Enrollment Pipeline (2) Sponsor Pipeline (3) Donor Pipeline (4) Grant Pipeline. All fields per the GHL tab. These are required before any automation can fire. No pipeline = no money captured.</div>
+      <div class="card-foot"><div class="chips"><span class="chip va">VA</span><span class="chip ghl">GHL</span></div><span class="due hot">THIS HOUR</span></div>
+    </div>
+    <div class="card fire">
+      <div class="card-head"><div class="card-title">GHL Agent Studio: Build Booking Concierge (Skate Haus)</div><span class="status fire">NOW</span></div>
+      <div class="card-body">GHL → AI Agents → Agent Studio → New Agent. Skate Haus Booking Concierge. Intake: event type, date, group size, add-ons. Auto-generate tiered quote. Send quote + deposit link via SMS + email within 10 minutes. You already own this — BUILD IT.</div>
+      <div class="card-foot"><div class="chips"><span class="chip va">VA</span><span class="chip ghl">GHL</span><span class="chip pepper">Pepper</span></div><span class="due hot">THIS HOUR</span></div>
+    </div>
+    <div class="card fire">
+      <div class="card-head"><div class="card-title">GHL Agent Studio: ClearPath AI Intake Agent</div><span class="status fire">NOW</span></div>
+      <div class="card-body">GHL → Agent Studio → New Agent. ClearPath AI Client Intake. 5-question form: company size, CMMC level, contract volume, urgency, pain point. Auto-score High/Medium/Low. Auto-book discovery call for High + Medium within 2 hours. Push to ClearPath pipeline.</div>
+      <div class="card-foot"><div class="chips"><span class="chip va">VA</span><span class="chip ghl">GHL</span></div><span class="due hot">THIS HOUR</span></div>
+    </div>
+  </div>
+
+  <div class="section-label">NEXT HOUR — THESE RUN IN PARALLEL</div>
+  <div class="grid g2">
+    <div class="card go">
+      <div class="card-head"><div class="card-title">Website Live: giantrocket.org by March 30</div><span class="status go">TODAY</span></div>
+      <div class="card-body">All pages published. Popup active. Donation buckets processing. Shop page 4 products live. Email/SMS capture feeding GHL. Webhook connected. Test every CTA before midnight.</div>
+      <div class="card-foot"><div class="chips"><span class="chip hailey">Hailey</span><span class="chip ai">AI</span></div><span class="due hot">MAR 30</span></div>
+    </div>
+    <div class="card go">
+      <div class="card-head"><div class="card-title">Media Advisory: Send to 4 TV Stations</div><span class="status go">TODAY</span></div>
+      <div class="card-body">KSDK NBC5 / Fox2 / KMOV CBS4 / KMOX Radio. AI has the draft ready. Rhonda approves in 10 minutes. Hailey sends. Hook: "Autism mom's son said I'm a GIANT Rocket — she built a nonprofit around those 4 words." Lead with the origin story.</div>
+      <div class="card-foot"><div class="chips"><span class="chip ai">AI</span><span class="chip rhonda">Rhonda</span><span class="chip hailey">Hailey</span></div><span class="due hot">TODAY</span></div>
+    </div>
+    <div class="card go">
+      <div class="card-head"><div class="card-title">Make.com: SAM.gov → GHL Bid Board Scenario</div><span class="status go">THIS WEEK</span></div>
+      <div class="card-body">Make.com (not n8n, not custom code). Build scenario: SAM.gov API polls new solicitations → applies CHASE Directive gates → pushes GO to GHL EZ Win Bid Board / NO-GO to Watchlist. VA builds visually. No code required.</div>
+      <div class="card-foot"><div class="chips"><span class="chip va">VA</span><span class="chip ai">AI</span></div><span class="due">APR 1</span></div>
+    </div>
+    <div class="card go">
+      <div class="card-head"><div class="card-title">ManyChat: GRF Keywords Active</div><span class="status go">TODAY</span></div>
+      <div class="card-body">Connect ManyChat to IG + TikTok. Keywords: SAFESPACE → DM with giantrocket.org link. ROCKET → origin story + RSVP link. DONATE → donation bucket links. MERCH → shop link. Same model as ClearPath. VA configures. Hailey tests all 4 keywords.</div>
+      <div class="card-foot"><div class="chips"><span class="chip va">VA</span><span class="chip hailey">Hailey</span></div><span class="due hot">TODAY</span></div>
+    </div>
+    <div class="card go">
+      <div class="card-head"><div class="card-title">Print Collateral: Order by March 25</div><span class="status go">TODAY</span></div>
+      <div class="card-body">Banner sign + table signs + merch flyers to printer NOW. Wristband vendor confirmed. DTG printer for tees + hoodies. Sticker vendor. All files are print-ready. Hailey places orders. Delivery deadline March 29 for March 31 event.</div>
+      <div class="card-foot"><div class="chips"><span class="chip hailey">Hailey</span><span class="chip rhonda">Rhonda</span></div><span class="due hot">ORDER TODAY</span></div>
+    </div>
+    <div class="card go">
+      <div class="card-head"><div class="card-title">AmeriCorps Grant: Find Deadline NOW</div><span class="status go">TODAY</span></div>
+      <div class="card-body">AI researches Missouri AmeriCorps State grant current cycle. Find the exact deadline. If open — AI drafts narrative using grantor-facing mission statement today. Pepper reviews. Rhonda approves. This is listed URGENT in the Master Plan — treat it as urgent.</div>
+      <div class="card-foot"><div class="chips"><span class="chip ai">AI</span><span class="chip pepper">Pepper</span></div><span class="due hot">TODAY</span></div>
+    </div>
+  </div>
+
+  <div class="section-label">MARCH 31 — NON-NEGOTIABLE</div>
+  <div class="grid g3">
+    <div class="card ok">
+      <div class="card-head"><div class="card-title">Ribbon Cutting: 10:00 AM</div><span class="status ok">MAR 31</span></div>
+      <div class="card-body">Phil runs the event sheet. Hailey runs logistics. Merch table set. Media checked in. Rhonda has 5 talking points memorized. Superhero Badge demo ready for cameras. Post to all channels within 1 hour of ribbon cut.</div>
+      <div class="card-foot"><div class="chips"><span class="chip phil">Phil</span><span class="chip hailey">Hailey</span></div></div>
+    </div>
+    <div class="card ok">
+      <div class="card-head"><div class="card-title">GRF Programming: April 1 Launch</div><span class="status ok">APR 1</span></div>
+      <div class="card-body">All 5 labs ready. 8 sessions scheduled. Coaches trained. Superhero Badges printed. Parent update system live in GHL. Session flow posted at every station. This is Pepper's job — she does NOT build systems today, she builds program excellence.</div>
+      <div class="card-foot"><div class="chips"><span class="chip pepper">Pepper</span></div></div>
+    </div>
+    <div class="card ok">
+      <div class="card-head"><div class="card-title">Revenue Pulse Agent: Live April 1</div><span class="status ok">APR 1</span></div>
+      <div class="card-body">Nightly 8PM reconciliation running. $100K/month target tracked daily. Gap alerts trigger promo sequences automatically. Rhonda gets dashboard notification every morning. This is the financial heartbeat — it must be live on day 1.</div>
+      <div class="card-foot"><div class="chips"><span class="chip openclaw">OpenClaw</span><span class="chip ghl">GHL</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ STOP BUILDING ══════════ -->
+<div class="panel" id="panel-stopbuild">
+  <div class="page-head">
+    <div class="page-title" style="color:var(--red)">🛑 STOP BUILDING</div>
+    <div class="page-sub">Steelo LLC Standing Operating Directive — Issued by Rhonda Taylor, CEO — March 2026</div>
+  </div>
+
+  <div class="alert">
+    <span class="alert-icon">⚠️</span>
+    Before you build ANYTHING — run the 4-Gate Check. If Gates 1–3 solve it, DO NOT escalate. If they don't — escalate to Rhonda BEFORE writing a single line of code.
+  </div>
+
+  <div class="section-label">THE 4-GATE CHECK — RUN THIS BEFORE EVERY BUILD</div>
+
+  <div class="gate">
+    <div class="gate-num">1</div>
+    <div class="gate-title">Gate 1 — Is it in GHL Agent Studio?</div>
+    <div class="gate-rule">If the task involves: conversations, intake, qualification, booking, follow-up, content generation, pipeline updates, knowledge base Q&A, or lead scoring →</div>
+    <div class="gate-body">GHL already has a no-code AI agent builder built in. You already own it. It costs $0 extra. It connects natively to your pipelines, contacts, workflows, calendars, and knowledge base. Build it in GHL Agent Studio. Done.</div>
+    <div class="gate-do">→ BUILD IT IN GHL AGENT STUDIO. STOP HERE.</div>
+  </div>
+
+  <div class="gate">
+    <div class="gate-num">2</div>
+    <div class="gate-title">Gate 2 — Is it in Make.com?</div>
+    <div class="gate-rule">If the task requires pulling data from an external API (SAM.gov, Grants.gov, vendor pricing) and pushing it to GHL →</div>
+    <div class="gate-body">Make.com does this visually. No code. Drag and drop. SAM.gov module exists. GHL module exists. Build a Make scenario. It takes 2–4 hours. It costs $29/month. It is already in the Dream Stack.</div>
+    <div class="gate-do">→ BUILD A MAKE SCENARIO. STOP HERE.</div>
+  </div>
+
+  <div class="gate">
+    <div class="gate-num">3</div>
+    <div class="gate-title">Gate 3 — Is it already in the Dream Stack?</div>
+    <div class="gate-rule">Check the full stack before creating anything new:</div>
+    <div class="card-body" style="margin-top:8px">Claude · OpenClaw · GHL · Make.com · Closebot · HeyGen · Twin.so · ChatGPT · DeepSeek · Cursor · Skool · SAM.gov/DIBBS · TikTok Shop · Walmart DSV · ManyChat · GHL Voice AI</div>
+    <div class="gate-do">→ IF THE TOOL EXISTS — USE IT. STOP HERE.</div>
+  </div>
+
+  <div class="gate">
+    <div class="gate-num">4</div>
+    <div class="gate-title">Gate 4 — Only Then Escalate to Rhonda</div>
+    <div class="gate-rule">If Gates 1–3 cannot solve it:</div>
+    <div class="gate-body">Bring it to Rhonda BEFORE writing a single line of code. Do not build. Do not deploy. Do not touch the Iron Box. Escalate with: (1) What you need to do (2) Why the first 3 gates don't solve it (3) Your proposed solution.</div>
+    <div class="gate-do">→ ESCALATE TO RHONDA. DO NOT BUILD FIRST.</div>
+  </div>
+
+  <div class="section-label">WHAT THIS STOPS</div>
+  <div class="grid g2">
+    <div class="card fire">
+      <div class="card-body">
+        ✗ Building Iron Box agents when GHL Agent Studio is free<br>
+        ✗ Writing Python scripts when Make.com has the module<br>
+        ✗ Deploying n8n (REMOVED — replaced by OpenClaw)<br>
+        ✗ Spending hours building what $29/month already solves<br>
+        ✗ Touching the Iron Box without Rhonda's explicit approval
+      </div>
+    </div>
+    <div class="card ok">
+      <div class="card-body">
+        ✓ Rhonda's time protected<br>
+        ✓ Pepper's time protected — she runs programs, not code<br>
+        ✓ Phase 1 deadlines hit<br>
+        ✓ $324/month budget ceiling held<br>
+        ✓ Dream Stack integrity maintained
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">OPENCLAW — WHAT IT IS + HOW TO INSTALL</div>
+  <div class="card info">
+    <div class="card-head"><div class="card-title">OpenClaw: The 24/7 Autonomous Agent Layer (Replaces n8n)</div><span class="status info">FREE + $12/MO HOSTING</span></div>
+    <div class="card-body">
+      OpenClaw is NOT a chatbot. It's NOT another automation tool. It sits ABOVE GHL and Make as the always-on execution layer.<br><br>
+      → Runs continuously in the cloud, 24 hours a day<br>
+      → Rhonda texts it a task — it executes while she sleeps<br>
+      → Browses the web, manages files, executes multi-step sequences, reports back — without prompting<br>
+      → Connects to WhatsApp/Telegram so Rhonda commands agents from her phone<br>
+      → Powered by Claude — all reasoning goes through Claude<br><br>
+      <strong style="color:var(--gold)">OpenClaw does NOT replace GHL, Make, or Closebot. It sits above them as the autonomous execution layer.</strong>
+    </div>
+    <div class="section-label" style="margin-top:10px;margin-bottom:8px">INSTALL OPTIONS</div>
+    <div class="grid g3">
+      <div class="stack-item">
+        <div class="stack-name">Option A — DigitalOcean (RECOMMENDED)</div>
+        <div class="stack-role">~$12/month</div>
+        <div class="stack-desc">digitalocean.com/marketplace → search OpenClaw → 1-Click Deploy. Hardened security image. VA manages. Done in 30 minutes.</div>
+        <div class="stack-verdict" style="background:rgba(5,150,105,.2);color:#6EE7B7">DO THIS FIRST</div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-name">Option B — Local Machine</div>
+        <div class="stack-role">$0 hosting</div>
+        <div class="stack-desc">Run on a dedicated machine. Must stay on 24/7. Not recommended for production use — use DigitalOcean.</div>
+        <div class="stack-verdict" style="background:rgba(245,158,11,.2);color:#FDE68A">BACKUP OPTION</div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-name">Security Rules (Non-Negotiable)</div>
+        <div class="stack-role">Required before install</div>
+        <div class="stack-desc">Only verified skills. Never expose port 18789 publicly. No children's data through OpenClaw (COPPA). Sandbox environment only. VA manages — not Rhonda's machine.</div>
+        <div class="stack-verdict" style="background:rgba(220,38,38,.2);color:#FCA5A5">MANDATORY</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ DREAM STACK ══════════ -->
+<div class="panel" id="panel-stack">
+  <div class="page-head">
+    <div class="page-title">🧠 DREAM STACK</div>
+    <div class="page-sub">$324/month total. Every tool has a job. Nothing overlaps. Nothing is redundant.</div>
+  </div>
+
+  <div class="alert gold">
+    <span class="alert-icon">💡</span>
+    Rule: Claude creates the play. OpenClaw runs the play. GHL tracks the play. Rhonda closes the deal. Everyone else executes. That's it.
+  </div>
+
+  <div class="section-label">COMMAND LAYER</div>
+  <div class="grid g3">
+    <div class="stack-item">
+      <div class="stack-name">🧠 Claude (Sonnet 4.6)</div>
+      <div class="stack-role">COMMAND CENTER — Brain of Everything</div>
+      <div class="stack-desc">Creates every play. Reviews all agent outputs. Writes grant narratives, sponsor pitches, social content, bid packages. Coordinates all 5 brands. Nothing goes live without Claude's blueprint.</div>
+      <div class="stack-verdict" style="background:rgba(245,158,11,.2);color:#FDE68A">~$150/mo API</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-name">🦞 OpenClaw</div>
+      <div class="stack-role">24/7 AUTONOMOUS AGENT — Body of Everything</div>
+      <div class="stack-desc">Replaces n8n. Runs 10 Phase 1 agents. Receives commands via WhatsApp/Telegram. Executes overnight. Reports back at 8AM. Powered by Claude API.</div>
+      <div class="stack-verdict" style="background:rgba(220,38,38,.2);color:#FCA5A5">FREE + $12/mo hosting</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-name">🗂 Cowork Desktop Agent</div>
+      <div class="stack-role">RHONDA'S MAC — Desk Automation</div>
+      <div class="stack-desc">Organizes Rhonda's desktop, files, emails, calendar. Daily 7AM brief. Rhonda stays at vision + camera + deals level. Never in the weeds.</div>
+      <div class="stack-verdict" style="background:rgba(37,99,235,.2);color:#BFDBFE">In Claude ecosystem</div>
+    </div>
+  </div>
+
+  <div class="section-label">EXECUTION LAYER</div>
+  <div class="grid g4">
+    <div class="stack-item">
+      <div class="stack-name">⚙️ GoHighLevel (GHL)</div>
+      <div class="stack-role">CRM + AUTOMATION HUB</div>
+      <div class="stack-desc">All pipelines. Email + SMS. Agent Studio. Voice AI. ManyChat-style DM automation. The single source of truth for every lead, donor, sponsor, grant, and booking.</div>
+      <div class="stack-verdict" style="background:rgba(8,145,178,.2);color:#67E8F9">Already paid — $0 extra</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-name">🔄 Make.com</div>
+      <div class="stack-role">EXTERNAL API CONNECTOR</div>
+      <div class="stack-desc">SAM.gov → GHL. Grants.gov → GHL. Vendor pricing → cost stack. Visual drag-and-drop. No code. Replaces any custom script that pulls external data.</div>
+      <div class="stack-verdict" style="background:rgba(101,163,13,.2);color:#BEF264">~$29/mo</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-name">💬 Closebot V2</div>
+      <div class="stack-role">SALES CONVERSATION AI</div>
+      <div class="stack-desc">Top-rated GHL sales AI. Acquired ZappyChat. SMS + IG + FB + chat. Autonomous sales conversations for Skate Haus bookings and ClearPath AI leads. Objection handling built in.</div>
+      <div class="stack-verdict" style="background:rgba(245,158,11,.2);color:#FDE68A">~$97–$297/mo</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-name">📱 ManyChat</div>
+      <div class="stack-role">DM KEYWORD AUTOMATION</div>
+      <div class="stack-desc">TikTok + Instagram DM triggers. Keywords: CMMC, COMPLY, CLEARPATH, SAFESPACE, ROCKET, DONATE, MERCH. Auto-DMs the right link. No manual replies needed.</div>
+      <div class="stack-verdict" style="background:rgba(190,24,93,.2);color:#FBCFE8">~$15/mo</div>
+    </div>
+  </div>
+
+  <div class="section-label">CONTENT + AVATAR LAYER</div>
+  <div class="grid g4">
+    <div class="stack-item">
+      <div class="stack-name">🎬 HeyGen</div>
+      <div class="stack-role">AI VIDEO AVATARS</div>
+      <div class="stack-desc">Rhonda avatar for reels, website welcome, email intros. Mascot avatar for GRF social. Scales video content without Rhonda on camera every day.</div>
+      <div class="stack-verdict" style="background:rgba(124,58,237,.2);color:#DDD6FE">Already paid</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-name">👤 Twin.so</div>
+      <div class="stack-role">DIGITAL TWIN</div>
+      <div class="stack-desc">Rhonda's digital twin for FAQ handling, DM responses, initial lead qualification. Responds as Rhonda — routes complex items to the real Rhonda.</div>
+      <div class="stack-verdict" style="background:rgba(124,58,237,.2);color:#DDD6FE">In stack</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-name">📚 NotebookLM</div>
+      <div class="stack-role">KNOWLEDGE VAULT</div>
+      <div class="stack-desc">All org history, mission, program data, past grant narratives stored here. Grant Narrative Agent pulls from this vault to auto-populate grant applications.</div>
+      <div class="stack-verdict" style="background:rgba(5,150,105,.2);color:#6EE7B7">Free (Google)</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-name">🏫 Skool</div>
+      <div class="stack-role">COMMUNITY + EZ WIN</div>
+      <div class="stack-desc">EZ Win Skool community. Recurring revenue. Brand loyalty. VOTP distribution channel for white-label GHL product. Content drip keeps it alive.</div>
+      <div class="stack-verdict" style="background:rgba(194,65,12,.2);color:#FED7AA">In stack</div>
+    </div>
+  </div>
+
+  <div class="section-label">MONTHLY BUDGET — PHASE 1</div>
+  <table class="tbl">
+    <thead><tr><th>Line Item</th><th>Cost</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><strong>OpenClaw Core</strong></td><td style="color:var(--gold);font-family:var(--mono)">FREE</td><td>Open source — bring your own API key</td></tr>
+      <tr><td><strong>Claude API</strong></td><td style="color:var(--gold);font-family:var(--mono)">$150/mo</td><td>Agent coordination across all 10 Phase 1 agents</td></tr>
+      <tr><td><strong>NemoClaw Security Layer</strong></td><td style="color:var(--gold);font-family:var(--mono)">$99/mo</td><td>Enterprise security for OpenClaw deployment</td></tr>
+      <tr><td><strong>GHL</strong></td><td style="color:var(--gold);font-family:var(--mono)">$0 extra</td><td>Already paid — all pipelines, Agent Studio, Voice AI included</td></tr>
+      <tr><td><strong>HeyGen</strong></td><td style="color:var(--gold);font-family:var(--mono)">$0 extra</td><td>Already paid</td></tr>
+      <tr><td><strong>VA Agent Execution (Skillcheck)</strong></td><td style="color:var(--gold);font-family:var(--mono)">$75/mo</td><td>15 hrs @ $5/hr — executes under Pepper supervision</td></tr>
+      <tr><td><strong style="color:var(--gold)">TOTAL PHASE 1</strong></td><td style="color:var(--gold);font-family:var(--mono);font-weight:700">$324/mo</td><td>10 agents. 5 brands. 24/7 operation.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════ STEELO AGENTS ══════════ -->
+<div class="panel" id="panel-agents-steelo">
+  <div class="page-head">
+    <div class="page-title" style="color:#93C5FD">🏛 STEELO / EZ WIN AGENTS</div>
+    <div class="page-sub">Federal Contracting · DIBBS · SAM.gov · WOSB — Phase 1 Deadline: April 15, 2026</div>
+  </div>
+  <div class="alert gold"><span class="alert-icon">🎯</span>Mission: 10+ NSN bids per week with zero manual sourcing. GO/NO-GO in under 30 minutes. 32% margin on every bid.</div>
+
+  <div class="agent-card">
+    <div class="agent-brand-tag" style="background:rgba(37,99,235,.2);color:#93C5FD;border:1px solid rgba(37,99,235,.4)">STEELO / EZ WIN — P1</div>
+    <div class="agent-name">DIBBS Scout Agent</div>
+    <div class="agent-role">Always-on bid opportunity hunter and CHASE Directive screener</div>
+    <div class="agent-row">
+      <div><div class="agent-col-head">OpenClaw Does</div><div class="agent-col-body">Monitors SAM.gov + DIBBS continuously. Applies CHASE Directive Compliance Gate (AMSC, SAR, FAT/PLT, aviation structural flags). Scores by FSC lane (6240, 5920, 5925, 6505, 5305). Pushes GO to GHL Bid Board, NO-GO to Watchlist — within 30 min of posting.</div></div>
+      <div><div class="agent-col-head">Claude Does</div><div class="agent-col-body">Architects CHASE Directive decision logic. Writes NO-GO reason codes. Reviews flagged edge cases. Builds Bid Board field templates. Validates AMSC code interpretations.</div></div>
+      <div><div class="agent-col-head">GHL Action</div><div class="agent-col-body">Push to EZ Win Bid Board (GO) or Watchlist (NO-GO) via webhook. Tags: [SCOUT-GO] or [SCOUT-NOGO]. All 9 mandatory fields pre-populated. Rhonda reviews GO queue each morning.</div></div>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi"><span>10+</span>bids/week target</div>
+      <div class="kpi"><span>&lt;30 min</span>GO/NO-GO time</div>
+      <div class="kpi"><span>100%</span>Watchlist audit trail</div>
+      <div class="kpi"><span>APR 15</span>deploy by</div>
+    </div>
+    <div style="margin-top:8px"><div class="chips"><span class="chip openclaw">OpenClaw</span><span class="chip ai">Claude</span><span class="chip ghl">GHL</span><span class="chip rhonda">Rhonda Reviews</span></div></div>
+  </div>
+
+  <div class="agent-card">
+    <div class="agent-brand-tag" style="background:rgba(37,99,235,.2);color:#93C5FD;border:1px solid rgba(37,99,235,.4)">STEELO / EZ WIN — P1</div>
+    <div class="agent-name">EZ Win Cost Stack Agent</div>
+    <div class="agent-role">Full bid preparation engine — materials to submission-ready package</div>
+    <div class="agent-row">
+      <div><div class="agent-col-head">OpenClaw Does</div><div class="agent-col-body">Triggers on CHASE GO confirmation. Sources from Easy Vendors first: McMaster-Carr, Zoro, Grainger, MSC, Fastenal, Digi-Key, Mouser, Newark. Deep-seeks cheaper equals if margin is tight. Builds complete cost stack: Materials + Labor + Packaging (MIL-STD-2073) + Freight + Overhead + Profit.</div></div>
+      <div><div class="agent-col-head">Claude Does</div><div class="agent-col-body">Validates cost stack logic. Reviews 32% minimum margin formula (Bid = Cost / (1-0.32)). Catches packaging omissions. Checks vendor sources vs approved list. Formats final submission package. Validates tiered CO anchoring strategy.</div></div>
+      <div><div class="agent-col-head">GHL Action</div><div class="agent-col-body">Update Bid Board: Bid Unit Price, Total Estimate, Profit %, Source Vendor, Source Cost, Packaging Code, Delivery Days. Move to Stage 4: Ready to Submit. Rhonda reviews → approves → submits.</div></div>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi"><span>32%</span>min margin</div>
+      <div class="kpi"><span>100%</span>packaging included</div>
+      <div class="kpi"><span>0</span>WB Parts (Easy Vendors only)</div>
+      <div class="kpi"><span>APR 15</span>deploy by</div>
+    </div>
+    <div style="margin-top:8px"><div class="chips"><span class="chip openclaw">OpenClaw</span><span class="chip ai">Claude</span><span class="chip ghl">GHL</span><span class="chip rhonda">Rhonda Approves</span><span class="chip pepper">Pepper Tracks</span></div></div>
+  </div>
+
+  <div class="tl">
+    <div class="tl-item"><div class="tl-dot red"></div><div class="tl-date">STEP 1</div><div class="tl-title">SAM.gov / DIBBS posts new solicitation</div></div>
+    <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">STEP 2</div><div class="tl-title">DIBBS Scout applies CHASE Directive gate (OpenClaw)</div></div>
+    <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">STEP 3</div><div class="tl-title">NO-GO → Watchlist with reason codes | GO → sourcing</div></div>
+    <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">STEP 4</div><div class="tl-title">Cost Stack Agent builds full package with Easy Vendors (OpenClaw)</div></div>
+    <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">STEP 5</div><div class="tl-title">Claude validates margin, compliance, formats package</div></div>
+    <div class="tl-item"><div class="tl-dot green"></div><div class="tl-date">STEP 6-7</div><div class="tl-title">Rhonda approves → submits. GHL Bid Board → Stage 5: Submitted. Pepper tracks.</div></div>
+  </div>
+</div>
+
+<!-- ══════════ CLEARPATH AGENTS ══════════ -->
+<div class="panel" id="panel-agents-clearpath">
+  <div class="page-head">
+    <div class="page-title" style="color:#6EE7B7">🛡 CLEARPATH AI AGENTS</div>
+    <div class="page-sub">CMMC 2.0 · NIST SP 800-171 · AI Compliance — Phase 1 Deadline: April 10, 2026</div>
+  </div>
+  <div class="alert green"><span class="alert-icon">🎯</span>Mission: Every inbound inquiry qualified, scored, and moved to discovery call within 2 hours. No manual intake.</div>
+
+  <div class="agent-card">
+    <div class="agent-brand-tag" style="background:rgba(5,150,105,.2);color:#6EE7B7;border:1px solid rgba(5,150,105,.4)">CLEARPATH AI — P1</div>
+    <div class="agent-name">Client Intake Agent</div>
+    <div class="agent-role">Lead qualifier, scorer, and discovery call scheduler — fully automated</div>
+    <div class="agent-row">
+      <div><div class="agent-col-head">OpenClaw Does</div><div class="agent-col-body">Triggers on form submission at getclearpathai.org or inbound GHL inquiry. Serves 5-question intake form. Scores: High (large contract + urgent + L2/3), Medium, Low. Auto-books discovery call for High + Medium within 2 hours. Tags: [CMMC-L1], [CMMC-L2], [CMMC-L3], [HIGH-VALUE], [URGENT].</div></div>
+      <div><div class="agent-col-head">Claude Does</div><div class="agent-col-body">Writes intake form logic and scoring rubric. Personalizes confirmation emails. Builds intake package: NDA link + CMMC 2.0 overview + services one-pager. Reviews all High-value leads before discovery call.</div></div>
+      <div><div class="agent-col-head">GHL Action</div><div class="agent-col-body">Push to ClearPath AI 9-stage pipeline. Stage 1: Intake Received → Stage 2: Qualified → Stage 3: Discovery Scheduled. 10 custom fields. Notify Rhonda of every High-value lead within 15 minutes.</div></div>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi"><span>5+</span>leads/week by May 1</div>
+      <div class="kpi"><span>&lt;2hr</span>intake to discovery</div>
+      <div class="kpi"><span>30%</span>conversion target</div>
+      <div class="kpi"><span>&lt;15min</span>high-value alert</div>
+    </div>
+  </div>
+
+  <div class="agent-card">
+    <div class="agent-brand-tag" style="background:rgba(5,150,105,.2);color:#6EE7B7;border:1px solid rgba(5,150,105,.4)">CLEARPATH AI — P1</div>
+    <div class="agent-name">CMMC Gap Scanner Agent</div>
+    <div class="agent-role">Live compliance gap assessment engine — 110 NIST controls scored</div>
+    <div class="agent-row">
+      <div><div class="agent-col-head">OpenClaw Does</div><div class="agent-col-body">Triggers after client intake (Stage 2) or manual trigger by Rhonda. Runs structured gap assessment against all 110 NIST SP 800-171 controls. Scores all 14 domains. Calculates preliminary SPRS score. Flags Priority Remediation Items. Generates 1-page Gap Summary PDF for discovery call.</div></div>
+      <div><div class="agent-col-head">Claude Does</div><div class="agent-col-body">Validates gap assessment accuracy against NIST SP 800-171 rev 2. Refines SPRS calculation. Formats Gap Summary PDF. Identifies upsell triggers: policy package, full assessment, retainer.</div></div>
+      <div><div class="agent-col-head">GHL Action</div><div class="agent-col-body">Update client record: SPRS Score, Gap Count, Domain Heatmap. Move to Stage 3: Discovery Scheduled. Trigger: send Gap Summary PDF to client before every discovery call — 100% delivery rate.</div></div>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi"><span>110/110</span>controls covered</div>
+      <div class="kpi"><span>100%</span>gap summary delivery</div>
+      <div class="kpi"><span>APR 10</span>deploy by</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ GRF AGENTS ══════════ -->
+<div class="panel" id="panel-agents-grf">
+  <div class="page-head">
+    <div class="page-title" style="color:#C4B5FD">🚀 GRF AGENTS</div>
+    <div class="page-sub">Giant Rocket Foundation · Nonprofit · Autism Awareness — Phase 1 Deadline: April 1, 2026</div>
+  </div>
+  <div class="alert" style="background:linear-gradient(90deg,rgba(124,58,237,.15),transparent);border-color:rgba(124,58,237,.4);color:#C4B5FD">
+    <span class="alert-icon">🎯</span>Mission: 30+ grants in active pipeline. 4+ applications submitted by May. Every eligible grant gets a tailored narrative in under 4 hours.
+  </div>
+
+  <div class="agent-card">
+    <div class="agent-brand-tag" style="background:rgba(124,58,237,.2);color:#C4B5FD;border:1px solid rgba(124,58,237,.4)">GRF — P1</div>
+    <div class="agent-name">Grant Scout Agent</div>
+    <div class="agent-role">Daily automated grant discovery and EVA qualification gatekeeper</div>
+    <div class="agent-row">
+      <div><div class="agent-col-head">OpenClaw Does</div><div class="agent-col-body">Daily 6AM scan: Grants.gov API + GrantWatch sweep across all 3 entities (Steelo, Skate Haus, GRF). Applies 19-gate Steelo Grant Criteria Checklist. Scores EVA: eligibility, values alignment, timeline, reporting capacity. Flags MO Humanities Council as URGENT — pre-registration required. Alerts Pepper 7AM daily.</div></div>
+      <div><div class="agent-col-head">Claude Does</div><div class="agent-col-body">Architects 19-gate criteria logic. Writes EVA scoring prompts. Validates entity eligibility. Drafts Pepper's daily morning grant briefing with action items and urgency flags.</div></div>
+      <div><div class="agent-col-head">GHL Action</div><div class="agent-col-body">GHL Grant Board: all 3 entities tracked. Fields: Funder, Amount, Deadline, Entity, EVA Score, Status, Owner. Tags: [GRF-ELIGIBLE], [SKATE-HAUS], [STEELO], [URGENT], [AUTISM-MONTH]. Pepper owns GRF + Skate Haus. Hailey performs daily GrantWatch sweep.</div></div>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi"><span>30+</span>grants in pipeline</div>
+      <div class="kpi"><span>$500K+</span>pipeline value</div>
+      <div class="kpi"><span>6AM</span>daily scan time</div>
+      <div class="kpi"><span>APR 1</span>deploy by</div>
+    </div>
+  </div>
+
+  <div class="agent-card">
+    <div class="agent-brand-tag" style="background:rgba(124,58,237,.2);color:#C4B5FD;border:1px solid rgba(124,58,237,.4)">GRF — P1</div>
+    <div class="agent-name">Grant Narrative Agent</div>
+    <div class="agent-role">CO-100 compliant application writer — complete draft in 2–4 hours</div>
+    <div class="agent-row">
+      <div><div class="agent-col-head">OpenClaw Does</div><div class="agent-col-body">Triggers on approved grant (EVA-qualified, owner assigned, deadline confirmed). Pulls org history + mission + program data from NotebookLM vault. Generates CO-100 compliant narrative. Embeds Rhonda's origin story: October 2019 loss, Rocket born one month later, "I'm a GIANT Rocket." Auto-formats per funder's submission requirements.</div></div>
+      <div><div class="agent-col-head">Claude Does</div><div class="agent-col-body">Refines narrative for voice, emotional resonance, and funder alignment. Ensures Rhonda's personal story is present and powerful. Validates budget narrative accuracy. Flags Autism Awareness Month framing for all April grants.</div></div>
+      <div><div class="agent-col-head">GHL Action</div><div class="agent-col-body">Move to Stage: Draft Complete. Assign review task to Rhonda. Set submission deadline reminders: 72 hrs, 24 hrs, 2 hrs before due. Post-submission: calendar reminder for follow-up and report deadlines.</div></div>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi"><span>4+</span>apps/month by May</div>
+      <div class="kpi"><span>&lt;4hr</span>draft delivery</div>
+      <div class="kpi"><span>100%</span>Autism Month framing in April</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SKATE HAUS AGENTS ══════════ -->
+<div class="panel" id="panel-agents-skate">
+  <div class="page-head">
+    <div class="page-title" style="color:#F9A8D4">🛼 SKATE HAUS AGENTS</div>
+    <div class="page-sub">St. Charles MO · Venue · Events · Sensory-Friendly — Phase 1 Deadline: April 1, 2026</div>
+  </div>
+  <div class="alert" style="background:linear-gradient(90deg,rgba(190,24,93,.15),transparent);border-color:rgba(190,24,93,.4);color:#F9A8D4">
+    <span class="alert-icon">🎯</span>Mission: $100K/month. Every inquiry gets a quote in 10 minutes. Deposit collected within 1 hour. Zero dropped leads.
+  </div>
+
+  <div class="agent-card">
+    <div class="agent-brand-tag" style="background:rgba(190,24,93,.2);color:#F9A8D4;border:1px solid rgba(190,24,93,.4)">SKATE HAUS — P1</div>
+    <div class="agent-name">Booking Concierge Agent</div>
+    <div class="agent-role">24/7 automated party, event, and corporate booking intake and quote engine</div>
+    <div class="agent-row">
+      <div><div class="agent-col-head">OpenClaw / GHL Does</div><div class="agent-col-body">BUILD IN GHL AGENT STUDIO FIRST. Captures: event type (birthday, corporate, sensory, teen night, adult skate), date, group size, add-ons (F&B, DJ, private floor). Auto-generates tiered quote in 10 minutes. Sends quote + deposit link via SMS + email simultaneously. Follows up on ghosted quotes at 24h, 48h, 72h. Routes sensory/RSA inquiries to Pepper.</div></div>
+      <div><div class="agent-col-head">Claude Does</div><div class="agent-col-body">Writes quote templates for all package tiers. Writes ghosted-inquiry follow-up sequences with escalating urgency and scarcity. Writes sensory-friendly intake language. Writes corporate inquiry pitch scripts.</div></div>
+      <div><div class="agent-col-head">GHL Action</div><div class="agent-col-body">Calendar: block dates on deposit receipt. Pipeline: Inquiry → Quoted → Deposit Paid → Confirmed. Tags: [BIRTHDAY], [CORPORATE], [SENSORY], [HIGH-VALUE]. Corporate $2,500+: notify Rhonda in 15 minutes.</div></div>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi"><span>&lt;10min</span>quote time, 24/7</div>
+      <div class="kpi"><span>70%+</span>deposit within 1hr</div>
+      <div class="kpi"><span>30+</span>party bookings/month</div>
+      <div class="kpi"><span>100%</span>zero dropped leads</div>
+    </div>
+  </div>
+
+  <div class="agent-card">
+    <div class="agent-brand-tag" style="background:rgba(190,24,93,.2);color:#F9A8D4;border:1px solid rgba(190,24,93,.4)">SKATE HAUS — P1</div>
+    <div class="agent-name">Revenue Pulse Agent</div>
+    <div class="agent-role">Daily $100K/month revenue tracker and gap alert system</div>
+    <div class="agent-row">
+      <div><div class="agent-col-head">OpenClaw Does</div><div class="agent-col-body">Daily 8PM automated reconciliation across all revenue streams: party bookings, memberships, walk-in sessions, F&B, retail. Calculates weekly pace vs $100K/month target. Flags if behind by &gt;10%. Identifies underperforming stream. Triggers promo sequence if walk-in count drops below threshold.</div></div>
+      <div><div class="agent-col-head">Claude Does</div><div class="agent-col-body">Builds gap-close recommendation logic. Writes automated promo copy triggered by drop in walk-in volume. Creates weekly summary template. Identifies seasonal revenue patterns and flags opportunities.</div></div>
+      <div><div class="agent-col-head">GHL Action</div><div class="agent-col-body">Custom GHL dashboard: 5 revenue stream widgets, weekly pace meter, membership count tracker, booking calendar fill rate. Push nightly snapshot to Rhonda via notification. Tag gap-close tasks to Pepper for execution.</div></div>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi"><span>$100K</span>/month target</div>
+      <div class="kpi"><span>8PM</span>daily reconciliation</div>
+      <div class="kpi"><span>auto</span>gap-close promos</div>
+      <div class="kpi"><span>APR 1</span>deploy by</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PULL UP AGENTS ══════════ -->
+<div class="panel" id="panel-agents-pullup">
+  <div class="page-head">
+    <div class="page-title" style="color:#FED7AA">🎙 PULL UP™ AGENTS</div>
+    <div class="page-sub">Podcast + Book Series — Phase 1 Deadline: May 1, 2026</div>
+  </div>
+  <div class="alert" style="background:linear-gradient(90deg,rgba(194,65,12,.15),transparent);border-color:rgba(194,65,12,.4);color:#FED7AA">
+    <span class="alert-icon">🎯</span>Mission: Every episode recorded at Skate Haus becomes 12 content assets within 4 hours. Research done before Rhonda sits down.
+  </div>
+  <div class="grid g2">
+    <div class="agent-card">
+      <div class="agent-brand-tag" style="background:rgba(194,65,12,.2);color:#FED7AA;border:1px solid rgba(194,65,12,.4)">PULL UP™ — P1</div>
+      <div class="agent-name">Episode Research Agent</div>
+      <div class="agent-role">Guest intelligence + topic development + episode brief generator</div>
+      <div class="agent-col-body" style="margin-top:8px">Triggers: Weekly Monday 8AM automated brief. Scouts guest candidates matching Pull Up archetype: builders, founders, operators. Builds full guest dossier. Generates talking point framework. Delivers to Rhonda before she walks into the studio.</div>
+      <div class="kpi-row"><div class="kpi"><span>MAY 1</span>deploy by</div><div class="kpi"><span>Every Mon 8AM</span>delivery</div></div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-brand-tag" style="background:rgba(194,65,12,.2);color:#FED7AA;border:1px solid rgba(194,65,12,.4)">PULL UP™ — P1</div>
+      <div class="agent-name">Content Repurpose Agent</div>
+      <div class="agent-role">Episode → 12 content assets in 4 hours</div>
+      <div class="agent-col-body" style="margin-top:8px">Triggers on episode recording completion. Transcribes via Whisper. Extracts 12 assets: 3 short clips, 5 social captions, 1 blog post, 1 email newsletter, 1 book chapter excerpt, 1 TikTok hook. All queued in GHL content calendar for VA scheduling.</div>
+      <div class="kpi-row"><div class="kpi"><span>12</span>assets per episode</div><div class="kpi"><span>&lt;4hr</span>turnaround</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ GRF OPS ══════════ -->
+<div class="panel" id="panel-grf-ops">
+  <div class="page-head">
+    <div class="page-title">🚀 GRF OPERATIONS</div>
+    <div class="page-sub">Giant Rocket Foundation × Skate Haus Lounge — Ribbon Cutting March 31 · Programs April 1</div>
+  </div>
+
+  <div class="section-label">MEMBERSHIP TIERS — ROCKET ACCESS ONLY (IRS COMPLIANCE)</div>
+  <table class="tbl">
+    <thead><tr><th>Tier</th><th>Price</th><th>Includes</th><th>Target</th></tr></thead>
+    <tbody>
+      <tr><td>🌱 Rocket Seedling</td><td style="color:var(--gold);font-family:var(--mono)">$85/mo</td><td>8 sessions/mo · Superhero Badge · SAFE SPACE coaching · Parent updates · All labs</td><td>Scholarship recipients</td></tr>
+      <tr><td>🚀 Rocket Access</td><td style="color:var(--gold);font-family:var(--mono)">$175/mo</td><td>All Seedling + social events + lab rotations + community access</td><td>Standard enrolled family</td></tr>
+      <tr><td>⬆️ Rocket Rising</td><td style="color:var(--gold);font-family:var(--mono)">$225/mo</td><td>All Access + priority registration + quarterly updates + extended arts/music</td><td>Enhanced tracking families</td></tr>
+      <tr><td>🏆 Rocket Champion</td><td style="color:var(--gold);font-family:var(--mono)">$350/mo</td><td>All Rising + Rocket Pathways + Transportation Pass + Mentorship track</td><td>Workforce-track families</td></tr>
+      <tr><td>⭐ Founding Hero</td><td style="color:var(--gold);font-family:var(--mono)">$495/mo</td><td>ALL benefits for entire family + wall recognition + VIP access + direct leadership line</td><td>Champion supporters</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-label">5 DONATION LANES (REVENUE + SPONSOR PITCHES)</div>
+  <div class="grid g3">
+    <div class="card go"><div class="card-head"><div class="card-title">🚌 Fund the Bus</div><span class="status go">OPEN</span></div><div class="card-body">Transportation access. No child left behind. Transportation Access Pass. Best sponsor naming lane — "Sponsor a Bus Route."</div></div>
+    <div class="card go"><div class="card-head"><div class="card-title">🌱 Build the Garden</div><span class="status go">OPEN</span></div><div class="card-body">Raised beds, soil, seeds, tools, irrigation, storage. Tangible + visual for donors. Sponsor naming: "Rocket Garden presented by [Company]."</div></div>
+    <div class="card go"><div class="card-head"><div class="card-title">🎵 Equip Arts & Music</div><span class="status go">OPEN</span></div><div class="card-body">Instruments, art supplies, sensory-friendly equipment. "Rocket Music Lab presented by [Company]." Most emotionally compelling for corporate sponsors.</div></div>
+    <div class="card go"><div class="card-head"><div class="card-title">👨‍🏫 Pay Coaches</div><span class="status go">OPEN</span></div><div class="card-body">Background-checked, sensory-trained staff. Payroll funding. Corporate sponsors love direct staff impact — clear safety and quality message.</div></div>
+    <div class="card go"><div class="card-head"><div class="card-title">🪑 Sponsor a Seat</div><span class="status go">OPEN</span></div><div class="card-body">Full scholarship for one child's membership. Most emotionally compelling lane. Use in every pitch deck, every media hit, every sponsor conversation. Every. Single. Time.</div></div>
+  </div>
+</div>
+
+<!-- ══════════ MERCH ══════════ -->
+<div class="panel" id="panel-merch">
+  <div class="page-head"><div class="page-title">👕 MERCH</div><div class="page-sub">4 products. giantrocket.org/shop must be live by March 30. 100% proceeds fund programming.</div></div>
+  <table class="tbl">
+    <thead><tr><th>Product</th><th>Price</th><th>Material</th><th>Print</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td><strong>🚀 Giant Rockets Tee</strong></td><td style="color:var(--gold);font-family:var(--mono)">$30</td><td>Bella+Canvas 3001, 100% Airlume ring-spun cotton 4.2oz, Natural/Cream</td><td>DTG — 12"×16" front center</td><td><span class="status fire">SHOP PAGE NEEDED</span></td></tr>
+      <tr><td><strong>🧥 Giant Rockets Hoodie</strong></td><td style="color:var(--gold);font-family:var(--mono)">$50</td><td>Bella+Canvas 3719, 52%/48% cotton-poly fleece 7.5oz (use spec sheet — NOT flyer's 80/20)</td><td>DTG/DTF front + back</td><td><span class="status fire">SHOP PAGE NEEDED</span></td></tr>
+      <tr><td><strong>⌚ SAFE SPACE Wristband</strong></td><td style="color:var(--gold);font-family:var(--mono)">$5</td><td>Medical-grade silicone, latex-free, Navy #1B2A4A</td><td>Screen print — Kid + Adult</td><td><span class="status fire">SHOP PAGE NEEDED</span></td></tr>
+      <tr><td><strong>🎨 Sticker Pack (5)</strong></td><td style="color:var(--gold);font-family:var(--mono)">$8</td><td>Weatherproof vinyl, UV resistant, glossy die-cut, ~3" each</td><td>Die-cut: Patch, Shield, Rocket, Fidget, Headphones</td><td><span class="status fire">SHOP PAGE NEEDED</span></td></tr>
+    </tbody>
+  </table>
+  <div class="note"><strong>⚠️ Spec discrepancy:</strong> Merch flyer says "80/20 cotton-poly" for hoodie. Fabric spec sheet says "52/48." Bella+Canvas 3719 is 52/48. Use spec sheet on website — not the flyer. Fix before shop goes live.<br><br><strong>Bundle play for March 31:</strong> Tee + Wristband + Stickers = $43 "Starter Pack." Give every media rep at ribbon cutting a free merch bag — they wear it on camera.</div>
+</div>
+
+<!-- ══════════ GRANTS ══════════ -->
+<div class="panel" id="panel-grants">
+  <div class="page-head"><div class="page-title">📋 GRANTS</div><div class="page-sub">$500K+ active pipeline target. AI hunts, Claude drafts, Rhonda approves, Pepper submits.</div></div>
+  <div class="alert"><span class="alert-icon">⚡</span>AmeriCorps State Grant is URGENT. MO Humanities Council pre-registration is URGENT. Find both deadlines today.</div>
+
+  <div class="section-label">VERIFIED GRANT TARGETS (17 FOUNDATION + FEDERAL)</div>
+  <table class="tbl">
+    <thead><tr><th>Funder</th><th>Range</th><th>Deadline</th><th>Fit</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Doug Flutie Jr. Foundation</strong></td><td>$2.5K–$25K</td><td>Rolling/Annual</td><td>DIRECT autism. Sensory resources.</td></tr>
+      <tr><td><strong>Christopher & Dana Reeve Foundation</strong></td><td>Up to $25K</td><td>Quarterly</td><td>Quality of Life. Accessibility.</td></tr>
+      <tr><td><strong>Autism Care Today (ACT)</strong></td><td>Varies</td><td>Rolling</td><td>Direct ASD family services.</td></tr>
+      <tr><td><strong>St. Charles County DDRB</strong></td><td>Varies</td><td>Annual</td><td>Direct local funder. Apply first.</td></tr>
+      <tr><td><strong>Walmart Foundation (Spark Good)</strong></td><td>$250–$5K</td><td>Quarterly</td><td>Community, education, DEI.</td></tr>
+      <tr><td><strong>U.S. Bank Community Possible</strong></td><td>$5K–$50K+</td><td>Annual</td><td>DEI, community vitality.</td></tr>
+      <tr><td><strong>MO Foundation for Health</strong></td><td>Varies</td><td>Annual</td><td>Sensory recreation as community health.</td></tr>
+      <tr><td><strong>AmeriCorps State (MO)</strong></td><td>Varies</td><td>FIND NOW ⚠️</td><td>Volunteer corps for session staffing.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note"><strong>Grantor-facing mission (use this in ALL grant apps — not the public mission):</strong><br>"Remove access barriers and deliver measurable outcomes through structured programming, transportation supports, and career exposure."</div>
+</div>
+
+<!-- ══════════ SPONSORS ══════════ -->
+<div class="panel" id="panel-sponsors">
+  <div class="page-head"><div class="page-title">🤝 SPONSORS</div><div class="page-sub">AI sets. Rhonda closes. No exceptions. Handoff: AI → Hailey → Phil → Rhonda.</div></div>
+  <div class="grid g2">
+    <div class="card go"><div class="card-head"><div class="card-title">AI Prospect + Qualify</div><span class="status go">DAILY</span></div><div class="card-body">AI builds 50-company target list: local St. Charles + STL businesses, pediatric practices, therapy centers, financial institutions, food chains, tech with DEI initiatives. Sorted by lane fit. Routes qualified leads to Hailey.</div><div class="card-foot"><div class="chips"><span class="chip ai">AI</span><span class="chip openclaw">OpenClaw</span></div></div></div>
+    <div class="card go"><div class="card-head"><div class="card-title">Rhonda Closes Every Deal</div><span class="status go">EVERY CALL</span></div><div class="card-body">AI qualifies → Hailey threads → Phil books → Rhonda closes. She shows up with one-sheet already built by Claude. Commits signed. AI sends follow-up contract within 24 hours. No one else closes. Ever.</div><div class="card-foot"><div class="chips"><span class="chip rhonda">Rhonda</span></div></div></div>
+  </div>
+</div>
+
+<!-- ══════════ GHL PIPELINES ══════════ -->
+<div class="panel" id="panel-ghl-pipelines">
+  <div class="page-head"><div class="page-title">⚙️ GHL PIPELINES</div><div class="page-sub">VA 1 builds all of these this week. Every pipeline must exist before automations can fire.</div></div>
+
+  <div class="alert gold"><span class="alert-icon">⚠️</span>These pipelines are NOT built yet for GRF. ClearPath AI pipelines exist. GRF pipelines = ZERO. VA 1 builds all 4 today.</div>
+
+  <div class="section-label">GRF PIPELINES — BUILD TODAY</div>
+  <div class="grid g2">
+    <div class="card fire">
+      <div class="card-head"><div class="card-title">Family Enrollment Pipeline</div><span class="status fire">BUILD NOW</span></div>
+      <div class="card-body">Stage 1: New Lead → Stage 2: Application Submitted → Stage 3: Scholarship Screened → Stage 4: Enrolled → Stage 5: Active Member → Stage 6: Renewal Due (30 days out)</div>
+    </div>
+    <div class="card fire">
+      <div class="card-head"><div class="card-title">Sponsor Pipeline</div><span class="status fire">BUILD NOW</span></div>
+      <div class="card-body">Stage 1: Prospected → Stage 2: Pitched → Stage 3: Call Booked → Stage 4: Rhonda Closed → Stage 5: Active Sponsor → Stage 6: Renewal Due (45-day auto-reminder)</div>
+    </div>
+    <div class="card fire">
+      <div class="card-head"><div class="card-title">Donor Pipeline</div><span class="status fire">BUILD NOW</span></div>
+      <div class="card-body">Stage 1: First Donation → Stage 2: Thank-You Sent → Stage 3: Impact Report Delivered → Stage 4: Recurring Ask → Stage 5: Upgraded to Recurring</div>
+    </div>
+    <div class="card fire">
+      <div class="card-head"><div class="card-title">Grant Pipeline</div><span class="status fire">BUILD NOW</span></div>
+      <div class="card-body">Stage 1: Identified (EVA score) → Stage 2: Research Complete → Stage 3: Drafting → Stage 4: Draft Complete → Stage 5: Rhonda Review → Stage 6: Submitted → Stage 7: Won / Lost</div>
+    </div>
+  </div>
+
+  <div class="section-label">CLEARPATH AI PIPELINES — ALREADY EXIST (VERIFY THESE)</div>
+  <div class="grid g2">
+    <div class="card ok"><div class="card-head"><div class="card-title">ClearPath AI Waitlist Pipeline ✅</div><span class="status ok">EXISTS</span></div><div class="card-body">New Lead → Assessment Sent → Contacted → Call Booked → Closed Won / Not Ready Yet. Verify webhook from getclearpathai.org is connected and firing.</div></div>
+    <div class="card ok"><div class="card-head"><div class="card-title">EZ Win Bid Board Pipeline ✅</div><span class="status ok">EXISTS</span></div><div class="card-body">Identified → GO In Prep → Submitted → Won → Lost. Watchlist: NO-GO Archived → Reappeared Re-screen. Verify all 9 mandatory bid fields exist as custom fields.</div></div>
+  </div>
+
+  <div class="section-label">SKATE HAUS PIPELINE — BUILD THIS WEEK</div>
+  <div class="card go">
+    <div class="card-head"><div class="card-title">Skate Haus Booking Pipeline</div><span class="status go">BUILD APR 1</span></div>
+    <div class="card-body">Stage 1: Inquiry Received → Stage 2: Quote Sent (within 10 min) → Stage 3: Deposit Paid → Stage 4: Confirmed → Stage 5: Event Delivered → Stage 6: Post-Event Follow-Up → Stage 7: Rebook Offer Sent. Tags: [BIRTHDAY] [CORPORATE] [SENSORY] [HIGH-VALUE].</div>
+  </div>
+</div>
+
+<!-- ══════════ TEAM ══════════ -->
+<div class="panel" id="panel-team">
+  <div class="page-head"><div class="page-title">👥 TEAM</div><div class="page-sub">8 people + AI. One lane each. No overlap. Execute NOW.</div></div>
+
+  <div class="alert"><span class="alert-icon">⚡</span>Rhonda approves and closes. Pepper runs programs. Everyone else executes. AI runs 24/7. No waiting. No building what already exists.</div>
+
+  <div class="section-label">RHONDA — CEO (VISION + CAMERA + DEALS ONLY)</div>
+  <div class="grid g4">
+    <div class="card go"><div class="card-head"><div class="card-title">Review Daily AI Digest</div><span class="status go">8AM DAILY</span></div><div class="card-body">OpenClaw delivers briefing at 8AM. Rhonda reviews in 10 minutes: hot leads, approvals needed, content queue, money move status. She says GO or EDIT. Done.</div></div>
+    <div class="card fire"><div class="card-head"><div class="card-title">Close All Deals</div><span class="status fire">EVERY CALL</span></div><div class="card-body">Every sponsor, partner, and media commitment closes through Rhonda. Phil books. AI builds the one-sheet. Rhonda shows up and closes. No exceptions.</div></div>
+    <div class="card go"><div class="card-head"><div class="card-title">Fox 2 + Media Appearances</div><span class="status go">MAR 31+</span></div><div class="card-body">Rhonda is the face. 5-beat talking points locked. Every appearance ends with giantrocket.org + Sponsor a Seat CTA. AI builds every prep doc before she walks in.</div></div>
+    <div class="card go"><div class="card-head"><div class="card-title">Approve Grant Submissions</div><span class="status go">ONGOING</span></div><div class="card-body">AI drafts. Claude refines. Rhonda approves final before Pepper submits. Rhonda does NOT research. Rhonda does NOT draft. Rhonda APPROVES.</div></div>
+  </div>
+
+  <div class="section-label">PEPPER — EXEC DIRECTOR (PROGRAMS ONLY — NOT SYSTEMS)</div>
+  <div class="grid g4">
+    <div class="card fire"><div class="card-head"><div class="card-title">5 Labs Ready by March 30</div><span class="status fire">MAR 30</span></div><div class="card-body">Garden, Arts, Music, Pathways, Access Support. All physically ready. Materials on hand. Visual schedules posted. Coach assignments confirmed. Pepper owns this 100%.</div></div>
+    <div class="card fire"><div class="card-head"><div class="card-title">Coach Training Complete</div><span class="status fire">MAR 30</span></div><div class="card-body">Brand language locked: kids = Giant Rockets, parents = Heroes. Session flow memorized. Superhero Badge system trained. Parent SMS update protocol rehearsed.</div></div>
+    <div class="card go"><div class="card-head"><div class="card-title">Grant Execution + Oversight</div><span class="status go">DAILY</span></div><div class="card-body">Pepper owns GRF + Skate Haus grants. Reviews Hailey's daily GrantWatch sweep. Submits approved applications. Tracks all deadlines in GHL Grant Board.</div></div>
+    <div class="card go"><div class="card-head"><div class="card-title">Manage Both VAs</div><span class="status go">WEEKLY</span></div><div class="card-body">Monday: confirm VAs online, check GHL leads logged. Friday: receive weekly reports by 4PM CST. Review + flag urgents to Rhonda. Send next week's priorities.</div></div>
+  </div>
+
+  <div class="section-label">HAILEY · PHIL · DONIELLE · VAs · AI AGENTS · AVATARS</div>
+  <table class="tbl">
+    <thead><tr><th>Person</th><th>Primary Job</th><th>This Week</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip hailey">Hailey</span></td><td>Website, print, logistics, outreach threads</td><td>Publish giantrocket.org by Mar 30. Print collateral ordered. ManyChat keywords live. Merch shop live. Event logistics March 31.</td></tr>
+      <tr><td><span class="chip phil">Phil</span></td><td>Books every Rhonda close call + session schedule</td><td>March 31 run sheet complete. 8-session daily schedule published Mar 30. All close calls booked within 24h of hot lead.</td></tr>
+      <tr><td><span class="chip donielle">Donielle</span></td><td>⚠️ Role undefined — Rhonda assigns this week</td><td>Options: community outreach, donor stewardship, social execution, event support. Rhonda assigns before March 25.</td></tr>
+      <tr><td><span class="chip va">VA 1</span></td><td>GHL builds + OpenClaw install + Make.com scenarios</td><td>Install OpenClaw on DigitalOcean. Build 4 GRF pipelines. Build Booking Concierge + Intake Agent in GHL Agent Studio. Build SAM.gov → GHL Make scenario.</td></tr>
+      <tr><td><span class="chip va">VA 2</span></td><td>Social scheduling + Canva content</td><td>Schedule all 6 merch posts. Set up posting cadence: 1 post/day, 3-5 stories, 3 reels/week. Queue content from AI Content Agent.</td></tr>
+      <tr><td><span class="chip openclaw">AI Agents</span></td><td>10 Phase 1 agents running 24/7 across all brands</td><td>Deploy order: GRF Grant Scout (Apr 1) → Skate Haus Booking + Revenue Pulse (Apr 1) → ClearPath Intake + Gap Scanner (Apr 10) → Steelo DIBBS Scout + Cost Stack (Apr 15) → Pull Up agents (May 1).</td></tr>
+      <tr><td><span class="chip ai">Avatars</span></td><td>Rhonda avatar + Mascot + FAQ bot</td><td>HeyGen Rhonda avatar: script written by AI, Rhonda approves. Mascot avatar for GRF social. Website FAQ bot in GHL Agent Studio (already owned — build it).</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════ COMPLIANCE ══════════ -->
+<div class="panel" id="panel-compliance">
+  <div class="page-head"><div class="page-title">🔒 COMPLIANCE</div><div class="page-sub">Non-negotiable locks. Violate these and the org is at risk. Zero exceptions.</div></div>
+  <div class="grid g2">
+    <div class="card fire">
+      <div class="card-head"><div class="card-title">Hard Stops — Never Violate</div></div>
+      <div class="card-body">
+        ⚠ Do NOT claim SNAP for memberships or services<br>
+        ⚠ Revenue = "Rocket Access Membership" ONLY — never: admission, fee, day pass<br>
+        ⚠ NDA-first: no partner gets priority plan before NDA signed<br>
+        ⚠ AI outreach: disclose AI, provide opt-out, maintain DNC compliance<br>
+        ⚠ COPPA: no children's data through OpenClaw — stays in GHL only<br>
+        ⚠ CAN-SPAM: all email/SMS must be compliant<br>
+        ⚠ GRF and SHL are separate entities — separate financials, docs, comms<br>
+        ⚠ No grant submission without Rhonda's explicit written approval
+      </div>
+    </div>
+    <div class="card ok">
+      <div class="card-head"><div class="card-title">Brand Locks</div></div>
+      <div class="card-body">
+        ✓ Kids = Giant Rockets (not clients, patients, special needs kids)<br>
+        ✓ Parents = The Heroes<br>
+        ✓ Facility = SAFE SPACE<br>
+        ✓ Autism language = "on the autism spectrum" or "with sensory needs"<br>
+        ✓ Never: "suffering from" or "afflicted by"<br>
+        ✓ Co-Founders = Rhonda Taylor and Kiarla (Pepper) Taylor — do not specify relationship publicly<br>
+        ✓ OpenClaw security: only verified skills, no exposed ports, sandbox only
+      </div>
+    </div>
+  </div>
+  <div class="note"><strong>Rocket Vibe Code:</strong> Every AI-generated output must pass this before use. Voice: Short. Warm. Simple. Choice-based. Never pushy. No shame, pressure, or clinical language. Framing: Strength-based only. Zero "fix" framing. All drafts labeled "DRAFT — AI GENERATED" before delivery to Rhonda.</div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// Live countdown to ribbon cutting
+function tick() {
+  const target = new Date('2026-03-31T10:00:00');
+  const now = new Date();
+  const diff = target - now;
+  if (diff > 0) {
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hrs = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+    document.getElementById('countdown-num').textContent = days + 'd ' + hrs + 'h';
+  } else {
+    document.getElementById('countdown-num').textContent = 'GO!';
+  }
+}
+tick();
+setInterval(tick, 60000);
+</script>
+</body>
+</html>
